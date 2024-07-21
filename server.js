@@ -1,10 +1,22 @@
 const express = require('express');
-const http = require('http');
+const https = require('https');
+const selfsigned = require('selfsigned');
 const WebSocket = require('ws');
 const { exec } = require('child_process');
 
+
 const app = express();
-const server = http.createServer(app);
+
+// Generate a self-signed certificate
+function generateCertificate() {
+  const attrs = [{ name: 'commonName', value: 'localhost' }];
+  const pems = selfsigned.generate(attrs, { days: 365 });
+  return { key: pems.private, cert: pems.cert };
+}
+
+const { key, cert } = generateCertificate();
+
+const server = https.createServer({ key, cert }, app);
 const wss = new WebSocket.Server({ server });
 
 app.use(express.static('public'));
