@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Command Remote</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #status { margin: 20px 0; font-weight: bold; }
+        #result { margin: 20px 0; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h1>Voice Command Remote</h1>
+    <button id="startButton">Start Listening</button>
+    <div id="status">Click 'Start Listening' to begin</div>
+    <div id="result"></div>
+
+    <script>
+        const startButton = document.getElementById('startButton');
+        const status = document.getElementById('status');
+        const result = document.getElementById('result');
+
+        let recognition;
+        let socket;
+
+        function connectWebSocket() {
+            socket = new WebSocket(`wss://${window.location.host}`);
+
+            socket.onopen = () => {
+                console.log('WebSocket connected');
+            };
+
+            socket.onclose = () => {
+                console.log('WebSocket disconnected');
+                setTimeout(connectWebSocket, 5000); // Attempt to reconnect every 5 seconds
+            };
+
+            socket.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        }
+
+        connectWebSocket();
+
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                status.textContent = 'Listening...';
+            };
+
+            recognition.onresult = (event) => {
+                const command = event.results[0][0].transcript;
+                result.textContent = `Command: ${command}`;
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(command);
+                } else {
+                    console.error('WebSocket is not connected');
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error', event.error);
+                status.textContent = `Error: ${event.error}. ${event.message || ''}`;
+            };
+
+            recognition.onend = () => {
+                status.textContent = 'Click "Start Listening" to begin';
+            };
+
+            startButton.addEventListener('click', () => {
+                recognition.start();
+            });
+        } else {
+            status.textContent = 'Speech recognition not supported in this browser.';
+            startButton.disabled = true;
+        }
+    </script>
+</body>
+</html>
