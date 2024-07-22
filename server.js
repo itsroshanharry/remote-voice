@@ -37,18 +37,23 @@ wss.on('connection', (ws) => {
 
 function executeCommand(command) {
   // This is a simple example. In a real application, you'd want to sanitize inputs and use a more robust command parsing system.
-  switch(command.toLowerCase()) {
-    case 'open chrome':
-      exec('start chrome');
-      break;
-    case 'open notepad':
-      exec('start notepad');
-      break;
-    case 'shutdown':
-      exec('shutdown /s /t 0');
-      break;
-    default:
-      console.log('Unknown command:', command);
+  if (command.toLowerCase().startsWith('search for ')) {
+    const searchQuery = encodeURIComponent(command.slice(11));
+    exec(`start chrome https://www.google.com/search?q=${searchQuery}`);
+  } else {
+    switch(command.toLowerCase()) {
+      case 'open chrome':
+        exec('start chrome');
+        break;
+      case 'open notepad':
+        exec('start notepad');
+        break;
+      case 'shutdown':
+        exec('shutdown /s /t 0');
+        break;
+      default:
+        console.log('Unknown command:', command);
+    }
   }
 }
 

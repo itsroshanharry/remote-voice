@@ -15,7 +15,15 @@
     <button id="startButton">Start Listening</button>
     <div id="status">Click 'Start Listening' to begin</div>
     <div id="result"></div>
-
+    <div id="commands">
+        <h2>Available Commands:</h2>
+        <ul>
+            <li>"Open Chrome"</li>
+            <li>"Open Notepad"</li>
+            <li>"Shutdown"</li>
+            <li>"Search for [your search query]"</li>
+        </ul>
+    </div>
     <script>
         const startButton = document.getElementById('startButton');
         const status = document.getElementById('status');
@@ -61,6 +69,7 @@
                     console.error('WebSocket is not connected');
                 }
             };
+
 
             recognition.onerror = (event) => {
                 console.error('Speech recognition error', event.error);
