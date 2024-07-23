@@ -36,7 +36,6 @@ wss.on('connection', (ws) => {
 });
 
 function executeCommand(command) {
-  // This is a simple example. In a real application, you'd want to sanitize inputs and use a more robust command parsing system.
   if (command.toLowerCase().startsWith('search for ')) {
     const searchQuery = encodeURIComponent(command.slice(11));
     exec(`start chrome https://www.google.com/search?q=${searchQuery}`);
